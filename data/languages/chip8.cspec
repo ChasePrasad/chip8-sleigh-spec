@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<compiler_spec>
+    <stackpointer register="SP" space="stack_space" growth="positive"/>
+    <!-- temp -->
+
+    <default_proto>
+        <prototype name="__stdcall" extrainput="0" stackshift="0">
+            <callotherfixup target="CALL"/>
+            <callotherfixup target="RET"/>
+        </prototype>
+    </default_proto>
+</compiler_spec>
