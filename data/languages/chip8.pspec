@@ -2,5 +2,7 @@
 
 <processor_spec>
     <program_counter register="PC"/>
-    <!-- temp -->
+    <default_memory_blocks>
+        <memory_block name="RAM" start_address="0x000" length="0x1000" initialized="false" overlay="false"/>
+    </default_memory_blocks>  
 </processor_spec>
