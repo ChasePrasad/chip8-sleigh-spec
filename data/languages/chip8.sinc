@@ -2,7 +2,7 @@
 # Sleigh Specification: https://ghidra.re/ghidra_docs/languages/html/sleigh_tokens.html
 # CHIP-8 Specification: http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#3.0
 
-# Preprocessor directives
+# --------------------------------Preprocessor directives--------------------------------
 @define CHIP8_ENDIAN "big"  # Tells the 
 @define INSTR_SIZE 2         # Each CHIP-8 instruction is 2 bytes (16 bits)
 @define STACK_SIZE 12       # CHIP-8 stack can hold up to 12 return addresses
@@ -18,3 +18,22 @@ define token instr (16)
   y = (7,4)           # upper 4 bits of the low byte
   kk = (7,0)          # lowest 8 bits of instruction
 ;
+
+# --------------------------------Architecture definition--------------------------------
+# Section 4, 7, 8 from sleigh specification
+define endian=big;
+define space ram type=ram_space size=2 default;       # Main memory space (4K bytes)
+
+# General purpose registers V0 to VF
+define register offset=0x00 size=1 [
+  V0, V1, V2, V3, V4, V5, V6, V7,
+  V8, V9, VA, VB, VC, VD, VE, VF
+];
+
+define register offset=0x20 size=2 [I];                 # Index register (I)
+define register offset=0x30 size=2 [PC];                # Program counter (PC)
+define register offset=0x32 size=1 [SP];                # Stack pointer (SP)
+define register offset=0x33 size=1 [DT, ST];            # Delay timer (DT) and sound timer (ST)
+define space display type=ram_space size=1 wordsize=1;  # Display memory space (64x32 pixels)
+
+# --------------------------------Instruction definitions--------------------------------
