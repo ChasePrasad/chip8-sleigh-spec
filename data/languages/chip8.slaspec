@@ -17,6 +17,8 @@ define register offset=0 size=1 [
 define register offset=0x10 size=2 [I];     # Index register
 define register offset=0x12 size=2 [PC];    # Program counter
 define register offset=0x14 size=1 [SP];    # Stack pointer
+define register offset=0x15 size=1 [ DT ];  # Delay timer
+define register offset=0x16 size=1 [ ST ];  # Sound timer
 
 #--------------------------------------------------------------------
 # Attach Token Fields and Register Mappings

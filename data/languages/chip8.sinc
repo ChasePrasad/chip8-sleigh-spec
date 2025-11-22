@@ -19,21 +19,53 @@ define token instr (16)
   kk = (7,0)          # lowest 8 bits of instruction
 ;
 
-# --------------------------------Architecture definition--------------------------------
-# Section 4, 7, 8 from sleigh specification
-define endian=big;
-define space ram type=ram_space size=2 default;       # Main memory space (4K bytes)
-
-# General purpose registers V0 to VF
-define register offset=0x00 size=1 [
-  V0, V1, V2, V3, V4, V5, V6, V7,
-  V8, V9, VA, VB, VC, VD, VE, VF
-];
-
-define register offset=0x20 size=2 [I];                 # Index register (I)
-define register offset=0x30 size=2 [PC];                # Program counter (PC)
-define register offset=0x32 size=1 [SP];                # Stack pointer (SP)
-define register offset=0x33 size=1 [DT, ST];            # Delay timer (DT) and sound timer (ST)
-define space display type=ram_space size=1 wordsize=1;  # Display memory space (64x32 pixels)
-
 # --------------------------------Instruction definitions--------------------------------
+
+# CHER
+
+/*
+Control Flow
+0nnn - SYS addr
+2nnn - CALL addr
+Bnnn - JP V0, addr
+*/
+
+:0nnn is opcode & 0xF000 == 0x0000 {
+  # Modern interpreters treat as NOP.
+}
+
+:2nnn is opcode & 0xF000 == 0x2000 {
+  ram[SP] = PC;      # store return address
+  SP = SP + 2;       # increments stack index by 2 bytes
+  PC = nnn;          # jump to subroutine address
+}
+
+:Bnnn is opcode & 0xF000 == 0xB000 {
+  PC = V0 + nnn;    # jump to address plus V0
+}
+
+/*
+Memory
+Annn - LD I, addr
+Fx07 - LD Vx, DT
+Fx0A - LD Vx, K
+Fx33 - LD B, Vx
+*/
+
+/*
+Arithmetic
+8xy5 - SUB Vx, Vy
+8xy7 - SUBN Vx, Vy
+*/
+
+/*
+Logic
+8xy1 - OR Vx, Vy
+8xy2 - AND Vx, Vy
+*/
+
+/*
+Graphics
+00E0 - CLS
+Dxyn - DRW Vx, Vy, nibble
+*/
