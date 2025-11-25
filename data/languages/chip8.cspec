@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <compiler_spec>
-    <stackpointer register="SP" space="stack_space" growth="positive"/>
-    <!-- temp -->
 
+    <!-- CHIP-8 stack uses normal RAM, not a dedicated stack space -->
+    <stackpointer register="SP" growth="positive"/>
+
+    <!-- Default calling convention (mostly unused for CHIP-8) -->
     <default_proto>
-        <prototype name="__stdcall" extrainput="0" stackshift="0">
-            <callotherfixup target="CALL"/>
-            <callotherfixup target="RET"/>
-        </prototype>
+        <prototype name="default" extrainput="0" stackshift="0"/>
     </default_proto>
+
 </compiler_spec>

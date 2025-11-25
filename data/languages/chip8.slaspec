@@ -1,31 +1,24 @@
-@include "chip8.sinc"
-
-define endian = CHIP8_ENDIAN;      # CHIP-8 uses big-endian byte order
-define alignment = INSTR_SIZE;     # 2-byte instruction alignment
+# Define endianness and alignment
+define endian=big;
+define alignment=2;
 
 #--------------------------------------------------------------------
 # Memory Space Definition
 #--------------------------------------------------------------------
-define space ram type=ram_space size=2 default wordsize=2;
+define space ram      type=ram_space      size=2  default;
+define space register type=register_space size=2;
 
 #--------------------------------------------------------------------
 # Register Space Definition
 #--------------------------------------------------------------------
-define register offset=0 size=1 [
+define register offset=0x00 size=1 [
   V0 V1 V2 V3 V4 V5 V6 V7 V8 V9 VA VB VC VD VE VF
 ];
-define register offset=0x10 size=2 [I];     # Index register
-define register offset=0x12 size=2 [PC];    # Program counter
-define register offset=0x14 size=1 [SP];    # Stack pointer
-define register offset=0x15 size=1 [ DT ];  # Delay timer
-define register offset=0x16 size=1 [ ST ];  # Sound timer
 
-#--------------------------------------------------------------------
-# Attach Token Fields and Register Mappings
-#--------------------------------------------------------------------
+define register offset=0x10 size=2 [ I ];         # Index register
+define register offset=0x12 size=2 [ PC ];        # Program counter
+define register offset=0x14 size=1 [ SP ];        # Stack pointer
+define register offset=0x15 size=1 [ DT ];        # Delay timer
+define register offset=0x16 size=1 [ ST ];        # Sound timer
 
-# Basic token fields available to all instructions
-attach variables [opcode nnn n kk] to instruction;
-
-# Map 4-bit fields x and y to CHIP-8 registers V0–VF
-attach variables [x y] [V0 V1 V2 V3 V4 V5 V6 V7 V8 V9 VA VB VC VD VE VF];
+@include "chip8.sinc"

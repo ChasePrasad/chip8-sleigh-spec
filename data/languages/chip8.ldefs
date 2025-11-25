@@ -7,7 +7,7 @@
         size="16"
         variant="default"
         version="1.0"
-        slafile="chip8.slaspec"
+        slafile="chip8.sla"
         processorspec="chip8.pspec"
         id="CHIP-8:BE:16:default"
     <description>CHIP-8</description>

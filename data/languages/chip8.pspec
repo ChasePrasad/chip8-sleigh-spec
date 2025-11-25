@@ -1,8 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <processor_spec>
-    <program_counter register="PC"/>
-    <default_memory_blocks>
-        <memory_block name="RAM" start_address="0x000" length="0x1000" initialized="false" overlay="false"/>
-    </default_memory_blocks>  
+
+  <!-- ============================================================
+       Register Definitions (exactly as declared in .slaspec)
+       ============================================================ -->
+  <registers>
+
+    <!-- 16 general-purpose 8-bit registers -->
+    <register name="V0" size="1"/>
+    <register name="V1" size="1"/>
+    <register name="V2" size="1"/>
+    <register name="V3" size="1"/>
+    <register name="V4" size="1"/>
+    <register name="V5" size="1"/>
+    <register name="V6" size="1"/>
+    <register name="V7" size="1"/>
+    <register name="V8" size="1"/>
+    <register name="V9" size="1"/>
+    <register name="VA" size="1"/>
+    <register name="VB" size="1"/>
+    <register name="VC" size="1"/>
+    <register name="VD" size="1"/>
+    <register name="VE" size="1"/>
+    <register name="VF" size="1"/>
+
+    <!-- CHIP-8 core registers -->
+    <register name="I"  size="2"/>
+    <register name="PC" size="2"/>
+
+    <!-- Stack pointer is 1 byte (your slaspec) -->
+    <register name="SP" size="1"/>
+
+    <!-- Timers -->
+    <register name="DT" size="1"/>
+    <register name="ST" size="1"/>
+
+  </registers>
+
+
+  <!-- ============================================================
+       Default architectural registers
+       ============================================================ -->
+  <default_registers>
+    <!-- Program Counter -->
+    <pc>PC</pc>
+
+    <!-- Stack Pointer -->
+    <stackpointer>SP</stackpointer>
+  </default_registers>
+
+
+  <!-- ============================================================
+       CHIP-8 has no context registers
+       ============================================================ -->
+  <context_data>
+  </context_data>
+
 </processor_spec>
