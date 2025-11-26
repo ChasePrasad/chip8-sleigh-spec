@@ -46,8 +46,9 @@ attach variables [ x y ] [ V0 V1 V2 V3 V4 V5 V6 V7 V8 V9 VA VB VC VD VE VF ];
 # 00EE - RET
 :RET is op=0x0 & nnn=0xEE {
     local stackOffset:2 = zext(SP) * 2;
+    local addr:2 = *[ram]:2 stackOffset;
     SP = SP - 1;
-    return [*[ram]:2 stackOffset];
+    return [addr];
 }
 
 # 3xkk - SE Vx, byte
@@ -62,7 +63,8 @@ attach variables [ x y ] [ V0 V1 V2 V3 V4 V5 V6 V7 V8 V9 VA VB VC VD VE VF ];
 
 # Ex9E - SKP Vx
 :SKP x is op=0xE & x & kk=0x9E {
-    goto inst_next;
+    local keyPressed:1 = (KEY == x);
+    if (keyPressed) goto inst_next;
 }
 
 # 6xkk - LD Vx, byte
@@ -77,12 +79,74 @@ attach variables [ x y ] [ V0 V1 V2 V3 V4 V5 V6 V7 V8 V9 VA VB VC VD VE VF ];
 
 # Fx55 - LD [I], Vx
 :LD "[I]",x is op=0xF & x & kk=0x55 {
-    *[ram]:1 I = x;
+    *[ram]:1 (I + 0) = V0;
+    if (x >= 1) goto <r1>; goto <done>;
+    <r1> *[ram]:1 (I + 1) = V1;
+    if (x >= 2) goto <r2>; goto <done>;
+    <r2> *[ram]:1 (I + 2) = V2;
+    if (x >= 3) goto <r3>; goto <done>;
+    <r3> *[ram]:1 (I + 3) = V3;
+    if (x >= 4) goto <r4>; goto <done>;
+    <r4> *[ram]:1 (I + 4) = V4;
+    if (x >= 5) goto <r5>; goto <done>;
+    <r5> *[ram]:1 (I + 5) = V5;
+    if (x >= 6) goto <r6>; goto <done>;
+    <r6> *[ram]:1 (I + 6) = V6;
+    if (x >= 7) goto <r7>; goto <done>;
+    <r7> *[ram]:1 (I + 7) = V7;
+    if (x >= 8) goto <r8>; goto <done>;
+    <r8> *[ram]:1 (I + 8) = V8;
+    if (x >= 9) goto <r9>; goto <done>;
+    <r9> *[ram]:1 (I + 9) = V9;
+    if (x >= 10) goto <r10>; goto <done>;
+    <r10> *[ram]:1 (I + 10) = VA;
+    if (x >= 11) goto <r11>; goto <done>;
+    <r11> *[ram]:1 (I + 11) = VB;
+    if (x >= 12) goto <r12>; goto <done>;
+    <r12> *[ram]:1 (I + 12) = VC;
+    if (x >= 13) goto <r13>; goto <done>;
+    <r13> *[ram]:1 (I + 13) = VD;
+    if (x >= 14) goto <r14>; goto <done>;
+    <r14> *[ram]:1 (I + 14) = VE;
+    if (x >= 15) goto <r15>; goto <done>;
+    <r15> *[ram]:1 (I + 15) = VF;
+    <done>
 }
 
 # Fx65 - LD Vx, [I]
 :LD x,"[I]" is op=0xF & x & kk=0x65 {
-    x = *[ram]:1 I;
+    V0 = *[ram]:1 (I + 0);
+    if (x >= 1) goto <r1>; goto <done>;
+    <r1> V1 = *[ram]:1 (I + 1);
+    if (x >= 2) goto <r2>; goto <done>;
+    <r2> V2 = *[ram]:1 (I + 2);
+    if (x >= 3) goto <r3>; goto <done>;
+    <r3> V3 = *[ram]:1 (I + 3);
+    if (x >= 4) goto <r4>; goto <done>;
+    <r4> V4 = *[ram]:1 (I + 4);
+    if (x >= 5) goto <r5>; goto <done>;
+    <r5> V5 = *[ram]:1 (I + 5);
+    if (x >= 6) goto <r6>; goto <done>;
+    <r6> V6 = *[ram]:1 (I + 6);
+    if (x >= 7) goto <r7>; goto <done>;
+    <r7> V7 = *[ram]:1 (I + 7);
+    if (x >= 8) goto <r8>; goto <done>;
+    <r8> V8 = *[ram]:1 (I + 8);
+    if (x >= 9) goto <r9>; goto <done>;
+    <r9> V9 = *[ram]:1 (I + 9);
+    if (x >= 10) goto <r10>; goto <done>;
+    <r10> VA = *[ram]:1 (I + 10);
+    if (x >= 11) goto <r11>; goto <done>;
+    <r11> VB = *[ram]:1 (I + 11);
+    if (x >= 12) goto <r12>; goto <done>;
+    <r12> VC = *[ram]:1 (I + 12);
+    if (x >= 13) goto <r13>; goto <done>;
+    <r13> VD = *[ram]:1 (I + 13);
+    if (x >= 14) goto <r14>; goto <done>;
+    <r14> VE = *[ram]:1 (I + 14);
+    if (x >= 15) goto <r15>; goto <done>;
+    <r15> VF = *[ram]:1 (I + 15);
+    <done>
 }
 
 # Fx1E - ADD I, Vx
