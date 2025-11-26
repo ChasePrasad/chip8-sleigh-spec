@@ -3,6 +3,18 @@ define endian=big;
 define alignment=2;
 
 #--------------------------------------------------------------------
+# Token definitions (from chip8.sinc)
+#--------------------------------------------------------------------
+define token instr(16)
+  op     = (12,15)
+  nnn    = (0,11)
+  n      = (0,3)
+  x      = (8,11)
+  y      = (4,7)
+  kk     = (0,7)
+;
+
+#--------------------------------------------------------------------
 # Memory Space Definition
 #--------------------------------------------------------------------
 define space ram      type=ram_space      size=2  default;
@@ -15,106 +27,73 @@ define register offset=0x00 size=1 [
   V0 V1 V2 V3 V4 V5 V6 V7 V8 V9 VA VB VC VD VE VF
 ];
 
-define register offset=0x10 size=2 [ I ];         # Index register
-define register offset=0x12 size=2 [ PC ];        # Program counter
-define register offset=0x14 size=1 [ SP ];        # Stack pointer
-define register offset=0x15 size=1 [ DT ];        # Delay timer
-define register offset=0x16 size=1 [ ST ];        # Sound timer
-define register offset=0x18 size=1 [ KEY ];
-define register offset=0x1A size=2 [ DISPLAY ];
-
-@include "chip8.sinc"
-# Basic token fields available to all instructions
-attach variables [opcode nnn n kk] to instruction;
-
-# Map 4-bit fields x and y to CHIP-8 registers V0–VF
-attach variables [x y] [V0 V1 V2 V3 V4 V5 V6 V7 V8 V9 VA VB VC VD VE VF];
+define register offset=0x10 size=2 [ I ];
+define register offset=0x12 size=2 [ PC ];
+define register offset=0x14 size=1 [ SP ];
 
 #--------------------------------------------------------------------
-# Instructions (Murali’s CHIP-8 Subset)
+# Attach statements
+#--------------------------------------------------------------------
+attach variables [ x y ] [ V0 V1 V2 V3 V4 V5 V6 V7 V8 V9 VA VB VC VD VE VF ];
+
+#--------------------------------------------------------------------
+# Instructions (Murali's CHIP-8 Subset)
 #--------------------------------------------------------------------
 # 00EE - RET
-:RET is opcode=0x00EE {
-    PC = ram[SP];     # Restore program counter from stack
-    SP = SP - 1;      # Decrement stack pointer
+:RET is op=0x0 & nnn=0xEE {
+    local stackOffset:2 = zext(SP) * 2;
+    SP = SP - 1;
+    return [*[ram]:2 stackOffset];
 }
 
 # 3xkk - SE Vx, byte
-:SE Vx,kk is (opcode & 0xF000)==0x3000 & x & kk {
-    if (Vx == kk) PC = PC + 4;
-    else PC = PC + 2;
+:SE x,kk is op=0x3 & x & kk {
+    if (x == kk) goto inst_next;
 }
 
-# 5xy0 - SE Vx,Vy
-:SE Vx,Vy is (opcode & 0xF00F)==0x5000 & x & y {
-    if (Vx == Vy) PC = PC + 4;
-    else PC = PC + 2;
+# 5xy0 - SE Vx, Vy
+:SE x,y is op=0x5 & x & y & n=0x0 {
+    if (x == y) goto inst_next;
 }
 
 # Ex9E - SKP Vx
-:SKP Vx is (opcode & 0xF0FF)==0xE09E & x {
-    # Skip next instruction if key in Vx is pressed
-    PC = PC + 2;
+:SKP x is op=0xE & x & kk=0x9E {
+    goto inst_next;
 }
 
 # 6xkk - LD Vx, byte
-:LD Vx,kk is (opcode & 0xF000)==0x6000 & x & kk {
-    Vx = kk;
-    PC = PC + 2;
+:LD x,kk is op=0x6 & x & kk {
+    x = kk;
 }
 
 # 8xy0 - LD Vx, Vy
-:LD Vx,Vy is (opcode & 0xF00F)==0x8000 & x & y {
-    Vx = Vy;
-    PC = PC + 2;
+:LD x,y is op=0x8 & x & y & n=0x0 {
+    x = y;
 }
 
 # Fx55 - LD [I], Vx
-# Store registers V0 through Vx in memory starting at location I
-:LD [I],Vx is (opcode & 0xF0FF)==0xF055 & x {
-    local ptr = I;
-    local count:1 = 0;
-    <loop_store>
-    if (count > x) goto <end_store>;
-    *[ram]:1 ptr = *[register]:1 count;
-    ptr = ptr + 1;
-    count = count + 1;
-    goto <loop_store>;
-    <end_store>
-    PC = PC + 2;
+:LD "[I]",x is op=0xF & x & kk=0x55 {
+    *[ram]:1 I = x;
 }
 
 # Fx65 - LD Vx, [I]
-# Load registers V0 through Vx from memory starting at location I
-:LD Vx,[I] is (opcode & 0xF0FF)==0xF065 & x {
-    local ptr = I;
-    local count:1 = 0;
-    <loop_load>
-    if (count > x) goto <end_load>;
-    *[register]:1 count = *[ram]:1 ptr;
-    ptr = ptr + 1;
-    count = count + 1;
-    goto <loop_load>;
-    <end_load>
-    PC = PC + 2;
+:LD x,"[I]" is op=0xF & x & kk=0x65 {
+    x = *[ram]:1 I;
 }
 
 # Fx1E - ADD I, Vx
-:ADD I,Vx is (opcode & 0xF0FF)==0xF01E & x {
-    I = I + Vx;
-    PC = PC + 2;
+:ADD "I",x is op=0xF & x & kk=0x1E {
+    I = I + zext(x);
 }
 
 # 8xy6 - SHR Vx
-:SHR Vx is (opcode & 0xF00F)==0x8006 & x {
-    VF = Vx & 0x1;  # Save least significant bit
-    Vx = Vx >> 1;
-    PC = PC + 2;
+:SHR x is op=0x8 & x & y=0x0 & n=0x6 {
+    VF = x & 0x1;
+    x = x >> 1;
 }
 
 # 8xyE - SHL Vx
-:SHL Vx is (opcode & 0xF00F)==0x800E & x {
-    VF = (Vx >> 7) & 0x1;  # Save most significant bit
-    Vx = Vx << 1;
-    PC = PC + 2;
+:SHL x is op=0x8 & x & y=0x0 & n=0xE {
+    VF = (x >> 7) & 0x1;
+    x = x << 1;
 }
