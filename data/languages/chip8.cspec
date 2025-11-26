@@ -3,11 +3,26 @@
 <compiler_spec>
 
     <!-- CHIP-8 stack uses normal RAM, not a dedicated stack space -->
-    <stackpointer register="SP" growth="positive"/>
+    <stackpointer register="SP" space="ram" growth="positive"/>
 
-    <!-- Default calling convention (mostly unused for CHIP-8) -->
+    <!-- Default calling convention -->
     <default_proto>
-        <prototype name="default" extrainput="0" stackshift="0"/>
+        <prototype name="default" extrapop="0" stackshift="0">
+            <input>
+                <pentry minsize="1" maxsize="1">
+                    <register name="V0"/>
+                </pentry>
+            </input>
+            <output>
+                <pentry minsize="1" maxsize="1">
+                    <register name="V0"/>
+                </pentry>
+            </output>
+            <unaffected>
+                <register name="I"/>
+                <register name="SP"/>
+            </unaffected>
+        </prototype>
     </default_proto>
 
 </compiler_spec>
