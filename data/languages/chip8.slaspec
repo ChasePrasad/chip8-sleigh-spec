@@ -30,6 +30,10 @@ define register offset=0x00 size=1 [
 define register offset=0x10 size=2 [ I ];
 define register offset=0x12 size=2 [ PC ];
 define register offset=0x14 size=1 [ SP ];
+define register offset=0x15 size=1 [ DT ];        # Delay timer
+define register offset=0x16 size=1 [ ST ];        # Sound timer
+define register offset=0x18 size=1 [ KEY ];
+define register offset=0x1A size=2 [ DISPLAY ];
 
 #--------------------------------------------------------------------
 # Attach statements
