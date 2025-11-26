@@ -17,10 +17,11 @@ attach variables [ x y ] [ V0 V1 V2 V3 V4 V5 V6 V7 V8 V9 VA VB VC VD VE VF ];
 
 # -----------------------------Instruction definitions-----------------------------
 
-# ======== Control Flow ========
+# ======== Cher ========
 
 # 0nnn - SYS addr (treated as NOP in modern interpreters) - do nothing
 
+# 2nnn - CALL addr
 :CALL nnn is op=0x2 & nnn {
   local returnAddr:2 = inst_next;
   local stackOffset:2 = zext(SP) * 2;
@@ -30,7 +31,61 @@ attach variables [ x y ] [ V0 V1 V2 V3 V4 V5 V6 V7 V8 V9 VA VB VC VD VE VF ];
   call [addr];
 }
 
+# Bnnn - JP V0, addr
 :"JP V0,"nnn is op=0xB & nnn {
   local target:2 = nnn + zext(V0);
   goto [target];
+}
+
+:"LD I",nnn is op=0xA & nnn {
+  I = nnn;
+}
+
+:"LD B",x is op=0xF & x & kk=0x33 {
+  local value:1 = x;
+  local hundreds:1 = value / 100;
+  local tens:1 = (value / 10) % 10;
+  local ones:1 = value % 10;
+  local i_addr:2 = I;
+  *[ram]:1 i_addr = hundreds;
+  *[ram]:1 (i_addr + 1) = tens;
+  *[ram]:1 (i_addr + 2) = ones;
+}
+
+:LD x,"DT" is op=0xF & x & kk=0x07 {
+  x = DT;
+}
+
+:LD x,"K" is op=0xF & x & kk=0x0A {
+  x = KEY;
+}
+
+:SUB x,y is op=0x8 & x & y & n=0x5 {
+  local borrow:1 = (x < y);
+  VF = 1 - borrow;
+  x = x - y;
+}
+
+:SUBN x,y is op=0x8 & x & y & n=0x7 {
+  local borrow:1 = (y < x);
+  VF = 1 - borrow;
+  x = y - x;
+}
+
+:OR x,y is op=0x8 & x & y & n=0x1 {
+  x = x | y;
+}
+
+:AND x,y is op=0x8 & x & y & n=0x2 {
+  x = x & y;
+}
+
+:CLS is op=0x0 & nnn=0x0E0 {
+  DISPLAY = 0;
+}
+
+:DRW x,y,n is op=0xD & x & y & n {
+  local xCoord:1 = x & 0x3F;
+  local yCoord:1 = y & 0x1F;
+  VF = 0;
 }
