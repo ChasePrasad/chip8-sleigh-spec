@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <compiler_spec>
+    <global>
+        <range space="ram"/>
+    </global>
 
     <!-- CHIP-8 stack uses normal RAM, not a dedicated stack space -->
     <stackpointer register="SP" space="ram" growth="positive"/>

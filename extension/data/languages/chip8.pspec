@@ -7,14 +7,6 @@
   <programcounter register="PC"/>
 
   <!-- ============================================================
-       Default memory blocks
-       ============================================================ -->
-  <default_memory_blocks>
-    <memory_block name="ram" start_address="0x0" length="0x1000" initialized="false"/>
-  </default_memory_blocks>
-
-
-  <!-- ============================================================
        CHIP-8 has no context registers
        ============================================================ -->
   <context_data>

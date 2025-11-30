@@ -18,7 +18,7 @@ define token instr(16)
 # Memory Space Definition
 #--------------------------------------------------------------------
 define space ram      type=ram_space      size=2  default;
-define space register type=register_space size=2;
+define space register type=register_space size=1;
 
 #--------------------------------------------------------------------
 # Register Space Definition
@@ -164,4 +164,72 @@ attach variables [ x y ] [ V0 V1 V2 V3 V4 V5 V6 V7 V8 V9 VA VB VC VD VE VF ];
 :SHL x is op=0x8 & x & y=0x0 & n=0xE {
     VF = (x >> 7) & 0x1;
     x = x << 1;
+}
+
+#--------------------------------------------------------------------
+# Instructions (Chase's CHIP-8 Subset)
+#--------------------------------------------------------------------
+
+# 1nnn - JP addr
+:JP nnn is op=0x1 & nnn {
+  local addr:2 = nnn;
+  goto [addr];
+}
+
+# 4xkk - SNE Vx, byte
+:SNE x,kk is op=0x4 & x & kk {
+  if (x != kk) goto inst_next;
+}
+
+# 9xy0 - SNE Vx, Vy
+:SNE x,y is op=0x9 & x & y & n=0x0 {
+  if (x != y) goto inst_next;
+}
+
+# ExA1 - SKNP Vx
+:SKNP x is op=0xE & x & kk=0xA1 {
+  local keyNotPressed:1 = (KEY != x);
+  if (keyNotPressed) goto inst_next;
+}
+
+# Fx15 - LD DT, Vx
+:LD "DT",x is op=0xF & x & kk=0x15 {
+  DT = x;
+}
+
+# Fx18 - LD ST, Vx
+:LD "ST",x is op=0xF & x & kk=0x18 {
+  ST = x;
+}
+
+# Fx29 - LD F, Vx
+:LD "F",x is op=0xF & x & kk=0x29 {
+  local digit:2 = zext(x) * 5;
+  I = digit;
+}
+
+# 7xkk - ADD Vx, byte
+:ADD x,kk is op=0x7 & x & kk {
+  x = x + kk;
+}
+
+# 8xy4 - ADD Vx, Vy
+:ADD x,y is op=0x8 & x & y & n=0x4 {
+  local sum:2 = zext(x) + zext(y);
+  VF = zext(sum > 0xFF);
+  x = sum:1;
+}
+
+# 8xy3 - XOR Vx, Vy
+:XOR x,y is op=0x8 & x & y & n=0x3 {
+  x = x ^ y;
+}
+
+# To be used in Cxkk - RND Vx, byte
+define pcodeop random;
+
+# Cxkk - RND Vx, byte
+:RND x,kk is op=0xC & x & kk {
+  local rand:1 = random();
+  x = rand & kk;
 }
